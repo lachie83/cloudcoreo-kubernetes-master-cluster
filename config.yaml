@@ -1,1 +1,132 @@
-variables: {}
+variables:
+    VPC_NAME:
+        description: the cloudcoreo defined vpc to add this cluster to
+        type: String
+        required: true
+    PRIVATE_SUBNET_NAME:
+        description: the private subnet in which the cluster should be added
+        type: String
+        required: true
+    DNS_ZONE:
+        description: the zone in which the internal elb dns entry should be maintained
+        type: String
+        required: true
+    KUBE_CLUSTER_AMI:
+        description: "the ami to launch for the cluster - default is Amazon Linux AMI 2015.03 (HVM), SSD Volume Type"
+        switch: "INSTANCE::region"
+        cases:
+            us-east-1: ami-1ecae776
+            us-west-1: ami-d114f295
+            us-west-2: ami-e7527ed7
+            eu-west-1: ami-a10897d6
+            eu-central-1: ami-a8221fb5
+            ap-southeast-1: ami-68d8e93a
+            ap-northeast-1: ami-cbf90ecb
+            ap-southeast-2: ami-fd9cecc7
+            sa-east-1: ami-b52890a8
+        type: case
+        required: true
+        overrides:
+          - CLUSTER_AMI
+    KUBE_MASTER_NAME:
+        default: leadercluster
+        description: the name of the cluster - this will become your dns record too
+        type: String
+        required: true
+        overrides:
+          - CLUSTER_NAME
+    CLUSTER_ELB_TRAFFIC_PORTS:
+        default:
+            - 80
+        description: ports that need to allow traffic into the ELB
+        type: Array
+        required: true
+    CLUSTER_ELB_TRAFFIC_CIDRS:
+        default:
+            - 10.0.0.0/8
+        description: the cidrs to allow traffic from on the ELB itself
+        type: Array
+        required: true
+    CLUSTER_TCP_HEALTH_CHECK_PORT:
+        default: 8001
+        description: a tcp port the ELB will check every so often - this defines health and ASG termination
+        type: number
+        required: true
+    CLUSTER_INSTANCE_TRAFFIC_PORTS:
+        default:
+            - 8443
+            - 8001
+            - 8002
+            - 22
+        description: ports to allow traffic on directly to the instances
+        type: Array
+        required: true
+    CLUSTER_INSTANCE_TRAFFIC_CIDRS:
+        default:
+            - 10.0.0.0/8
+        description: cidrs that are allowed to access the instances directly
+        type: Array
+        required: true
+    CLUSTER_SIZE:
+        default: t2.small
+        description: the image size to launch
+        required: true
+    CLUSTER_GROUP_SIZE_MIN:
+        default: 3
+        description: the minimum number of instances to launch
+        type: number
+        required: true
+    CLUSTER_GROUP_SIZE_MAX:
+        default: 5
+        description: the maxmium number of instances to launch
+        type: number
+        required: true
+    CLUSTER_HEALTH_CHECK_GRACE_PERIOD:
+        default: 600
+        description: the time in seconds to allow for instance to boot before checking health
+        type: number
+        required: true
+    CLUSTER_UPGRADE_COOLDOWN:
+        default: 300
+        description: the time in seconds between rolling instances during an upgrade
+        type: number
+        required: true
+    TIMEZONE:
+        default: America/Chicago
+        value: America/Chicago
+        description: the timezone the servers should come up in
+        overrides: null
+        required: true
+        type: null
+    ELB_LISTENERS:
+        default: >
+                 [
+                   {
+                       :elb_protocol => 'tcp',
+                       :elb_port => 2379,
+                       :to_protocol => 'tcp',
+                       :to_port => 2379
+                   },
+                   {
+                       :elb_protocol => 'tcp',
+                       :elb_port => 2380,
+                       :to_protocol => 'tcp',
+                       :to_port => 2380
+                   }
+                 ]
+        description: The listeners to apply to the ELB
+    CLUSTER_KEY:
+        description: the ssh key to associate with the instance(s) - blank will disable ssh
+        type: string
+        required: false
+    DATADOG_KEY:
+        default: null
+        value: null
+        description: "If you have a datadog key, enter it here and we will install the agent"
+        overrides: null
+        required: false
+    WAIT_FOR_CLUSTER_MIN:
+        default: true
+        description: true if the cluster should wait for all instances to be in a running state
+        type: boolean
+        required: false
