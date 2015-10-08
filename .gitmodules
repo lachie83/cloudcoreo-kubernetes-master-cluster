@@ -1,0 +1,3 @@
+[submodule "extends"]
+	path = extends
+	url = git@github.com:CloudCoreo/leader-elect-cluster.git
