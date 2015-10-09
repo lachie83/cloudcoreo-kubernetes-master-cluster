@@ -3,6 +3,10 @@
 #
 # VARIABLES:
 #   KUBE_VERSION = 1.0.6
+#   KUBE_MASTER_NAME =
+#   DNS_ZONE = dev.aws.lcloud.com
+#   ETCD_CLUSTER_NAME = dev-etcd
+#   ETCD_DNS_ZONE = dev.aws.lcloud.com
 #   KUBE_CLUSTER_IP_CIDR = 10.1.1.0/24
 #   KUBE_ALLOW_PRIVILEGED = true
 #   KUBE_API_LOG_FILE = /var/log/kube-apiserver.log
@@ -39,7 +43,7 @@ name="$(echo $MY_IPADDRESS | perl -pe 's{\.}{}g')"
 
 nohup ./kube-apiserver \
     --admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ResourceQuota \
-    --etcd_servers=http://${CLUSTER_NAME}.${DNS_ZONE}:2379  \
+    --etcd_servers=http://${ETCD_CLUSTER_NAME}.${DNS_ZONE}:2379  \
     --insecure-bind-address=0.0.0.0 \
     --service-cluster-ip-range=${KUBE_MASTER_SERVICE_IP_CIDRS} \
     --allow-privileged=${KUBE_ALLOW_PRIVILEGED} \

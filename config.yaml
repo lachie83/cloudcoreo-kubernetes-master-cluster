@@ -56,6 +56,11 @@ variables:
         type: String
         required: true
         default: dev.aws.lcloud.com
+    ETCD_DNS_ZONE:
+        description: the zone in which the internal elb dns entry should be maintained
+        type: String
+        required: true
+        default: dev.aws.lcloud.com
     KUBE_CLUSTER_AMI:
         description: "the ami to launch for the cluster - default is Amazon Linux AMI 2015.03 (HVM), SSD Volume Type"
         switch: "INSTANCE::region"
@@ -80,6 +85,11 @@ variables:
         required: true
         overrides:
           - CLUSTER_NAME
+    ETCD_CLUSTER_NAME:
+        default: dev-etcd
+        description: the dns record of the etcd cluster
+        type: String
+        required: true
     KUBE_MASTER_ELB_TRAFFIC_PORTS:
         default:
             - 8080
@@ -155,7 +165,6 @@ variables:
           - CLUSTER_UPGRADE_COOLDOWN
     TIMEZONE:
         default: America/LosAngeles
-        value: America/LosAngeles
         description: the timezone the servers should come up in
         overrides: null
         required: true
@@ -182,7 +191,6 @@ variables:
           - CLUSTER_KEY
     DATADOG_KEY:
         default: ''
-        value: ''
         description: "If you have a datadog key, enter it here and we will install the agent"
         overrides: null
         required: false
