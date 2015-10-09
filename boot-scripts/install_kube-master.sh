@@ -17,11 +17,6 @@
 ## this stack extends the leader elect cluster, so lets source in the cluster profile and expose some variables to us
 source /etc/profile.d/cluster
 
-#etcd_version="${ETCD_VERSION:-2.2.0}"
-#cluster_name="${CLUSTER_NAME:-kube-etcd}"
-#dns_zone="${DNS_ZONE:-dev.aws.lcloud.com}"
-#etcd_log_file="${ETCD_LOG_FILE:-/var/log/etcd.log}"
-
 echo "installing kubernetes"
 
 kube_dir="/opt/kubernetes"
