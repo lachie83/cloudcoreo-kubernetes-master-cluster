@@ -26,16 +26,14 @@ echo "installing kubernetes"
 kube_dir="/opt/kubernetes"
 (
     cd /tmp
-    curl -L  "https://github.com/GoogleCloudPlatform/kubernetes/releases/download/v${KUBE_VERSION}/kubernetes.tar.gz" -o "kubernetes-latest.tar.gz"
+    curl -L  "https://github.com/GoogleCloudPlatform/kubernetes/releases/download/v${KUBE_VERSION}/kubernetes.tar.gz" -o "kubernetes.tar.gz"
 
-    tar xzvf "kubernetes-latest.tar.gz"
-    mv "kubernetes-latest.tar.gz" "$kube_dir"
-    rm -f "kubernetes-latest.tar.gz"
+    tar xzvf "kubernetes.tar.gz"
+    mv "kubernetes" "$kube_dir/"
 
     tar xzvf $kube_dir/kubernetes/server/kubernetes-server-linux-amd64.tar.gz
-    mv $kube_dir/kubernetes $kube_dir/kubernetes-latest
-    cp $kube_dir/kubernetes-latest/server/bin/* $kube_dir/
-    rm -rf $kube_dir/kubernetes-latest
+    cp $kube_dir/kubernetes/server/bin/* $kube_dir/
+    rm -rf $kube_dir/kubernetes
 )
 
 cd "$kube_dir"
