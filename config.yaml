@@ -35,12 +35,22 @@ variables:
         required: true
         description: the name of the VPC
         default: kube-dev
+    VPC_CIDR:
+        description: the cloudcoreo defined vpc to add this cluster to
+        type: String
+        required: true
+        default: 10.1.0.0/16
     PRIVATE_SUBNET_NAME:
         default: kube-dev-private-us-west-1
         required: true
         descripiton: the name of the private subnet
         description: the cloudcoreo name of the private vpc subnets. eg private-us-west-2c
         type: String
+    PRIVATE_ROUTE_NAME:
+        description: the private subnet in which the cluster should be added
+        type: String
+        required: true
+        default: dev-private-route
     DNS_ZONE:
         description: the zone in which the internal elb dns entry should be maintained
         type: String
