@@ -1,16 +1,51 @@
 variables:
+    KUBE_VERSION:
+        description: kubernetes version
+        type: String
+        required: true
+        default: 1.0.6
+    KUBE_MASTER_SERVICE_IP_CIDRS:
+        default:
+            - 10.1.1.0/24
+        description: kubernetes service cidrs
+        type: Array
+        required: true
+    KUBE_ALLOW_PRIVILEGED:
+        default: true
+        description: allow privileged containers
+        type: boolean
+        required: false
+    KUBE_API_LOG_FILE:
+        required: false
+        description: ha-nat log file
+        default: /var/log/kube-apiserver.log
+    KUBE_CONTROLLER_MANAGER_LOG_FILE:
+        required: false
+        description: ha-nat log file
+        default: /var/log/kube-controller-manager.log
+    KUBE_SCHEDULER_LOG_FILE:
+        required: false
+        description: ha-nat log file
+        default: /var/log/kube-scheduler.log
+    KUBE_PROXY_LOG_FILE:
+        required: false
+        description: ha-nat log file
+        default: /var/log/kube-api.log
     VPC_NAME:
-        description: the cloudcoreo defined vpc to add this cluster to
-        type: String
         required: true
+        description: the name of the VPC
+        default: kube-dev
     PRIVATE_SUBNET_NAME:
-        description: the private subnet in which the cluster should be added
-        type: String
+        default: kube-dev-private-us-west-1
         required: true
+        descripiton: the name of the private subnet
+        description: the cloudcoreo name of the private vpc subnets. eg private-us-west-2c
+        type: String
     DNS_ZONE:
         description: the zone in which the internal elb dns entry should be maintained
         type: String
         required: true
+        default: dev.aws.lcloud.com
     KUBE_CLUSTER_AMI:
         description: "the ami to launch for the cluster - default is Amazon Linux AMI 2015.03 (HVM), SSD Volume Type"
         switch: "INSTANCE::region"
@@ -29,104 +64,122 @@ variables:
         overrides:
           - CLUSTER_AMI
     KUBE_MASTER_NAME:
-        default: leadercluster
+        default: kube-master
         description: the name of the cluster - this will become your dns record too
         type: String
         required: true
         overrides:
           - CLUSTER_NAME
-    CLUSTER_ELB_TRAFFIC_PORTS:
+    KUBE_MASTER_ELB_TRAFFIC_PORTS:
         default:
-            - 80
+            - 8080
         description: ports that need to allow traffic into the ELB
         type: Array
         required: true
-    CLUSTER_ELB_TRAFFIC_CIDRS:
+        overrides:
+          - CLUSTER_ELB_TRAFFIC_PORTS
+    KUBE_MASTER_ELB_TRAFFIC_CIDRS:
         default:
             - 10.0.0.0/8
         description: the cidrs to allow traffic from on the ELB itself
         type: Array
         required: true
-    CLUSTER_TCP_HEALTH_CHECK_PORT:
-        default: 8001
+        overrides:
+          - CLUSTER_ELB_TRAFFIC_CIDRS
+    KUBE_MASTER_TCP_HEALTH_CHECK_PORT:
+        default: 8080
         description: a tcp port the ELB will check every so often - this defines health and ASG termination
         type: number
         required: true
-    CLUSTER_INSTANCE_TRAFFIC_PORTS:
+        overrides:
+          - CLUSTER_TCP_HEALTH_CHECK_PORT
+    KUBE_MASTER_INSTANCE_TRAFFIC_PORTS:
         default:
-            - 8443
-            - 8001
-            - 8002
-            - 22
+            - 1..65535
         description: ports to allow traffic on directly to the instances
         type: Array
         required: true
-    CLUSTER_INSTANCE_TRAFFIC_CIDRS:
+        overrides:
+          - CLUSTER_INSTANCE_TRAFFIC_PORTS
+    KUBE_MASTER_INSTANCE_TRAFFIC_CIDRS:
         default:
             - 10.0.0.0/8
         description: cidrs that are allowed to access the instances directly
         type: Array
         required: true
-    CLUSTER_SIZE:
+        overrides:
+          - CLUSTER_INSTANCE_TRAFFIC_CIDRS
+    KUBE_MASTER_SIZE:
         default: t2.small
         description: the image size to launch
         required: true
-    CLUSTER_GROUP_SIZE_MIN:
-        default: 3
+        overrides:
+          - CLUSTER_SIZE
+    KUBE_MASTER_GROUP_SIZE_MIN:
+        default: 2
         description: the minimum number of instances to launch
         type: number
         required: true
-    CLUSTER_GROUP_SIZE_MAX:
-        default: 5
+        overrides:
+          - CLUSTER_GROUP_SIZE_MIN
+    KUBE_MASTER_GROUP_SIZE_MAX:
+        default: 2
         description: the maxmium number of instances to launch
         type: number
         required: true
-    CLUSTER_HEALTH_CHECK_GRACE_PERIOD:
+        overrides:
+          - CLUSTER_GROUP_SIZE_MAX
+    KUBE_MASTER_HEALTH_CHECK_GRACE_PERIOD:
         default: 600
         description: the time in seconds to allow for instance to boot before checking health
         type: number
         required: true
-    CLUSTER_UPGRADE_COOLDOWN:
+        overrides:
+          - CLUSTER_HEALTH_CHECK_GRACE_PERIOD
+    KUBE_MASTER_UPGRADE_COOLDOWN:
         default: 300
         description: the time in seconds between rolling instances during an upgrade
         type: number
         required: true
+        overrides:
+          - CLUSTER_UPGRADE_COOLDOWN
     TIMEZONE:
-        default: America/Chicago
-        value: America/Chicago
+        default: America/LosAngeles
+        value: America/LosAngeles
         description: the timezone the servers should come up in
         overrides: null
         required: true
         type: null
-    ELB_LISTENERS:
+    KUBE_MASTER_ELB_LISTENERS:
         default: >
                  [
                    {
                        :elb_protocol => 'tcp',
-                       :elb_port => 2379,
+                       :elb_port => 8080,
                        :to_protocol => 'tcp',
-                       :to_port => 2379
-                   },
-                   {
-                       :elb_protocol => 'tcp',
-                       :elb_port => 2380,
-                       :to_protocol => 'tcp',
-                       :to_port => 2380
+                       :to_port => 8080
                    }
                  ]
         description: The listeners to apply to the ELB
-    CLUSTER_KEY:
+        overrides:
+          - ELB_LISTENERS
+    KUBE_MASTER_KEY:
         description: the ssh key to associate with the instance(s) - blank will disable ssh
         type: string
-        required: false
+        required: true
+        default: cloudops
+        overrides:
+          - CLUSTER_KEY
     DATADOG_KEY:
-        default: null
-        value: null
+        default: ''
+        value: ''
         description: "If you have a datadog key, enter it here and we will install the agent"
         overrides: null
         required: false
-    WAIT_FOR_CLUSTER_MIN:
+    WAIT_FOR_KUBE_MASTER_MIN:
         default: true
         description: true if the cluster should wait for all instances to be in a running state
         type: boolean
         required: false
+        overrides:
+          - WAIT_FOR_CLUSTER_MIN
