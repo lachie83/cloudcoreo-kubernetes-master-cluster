@@ -4,4 +4,5 @@
 ##   - install_chef.sh
 ##   - run_chef.sh
 
-
+script-order:
+  - install_kube-master.sh
