@@ -5,10 +5,8 @@ variables:
         required: true
         default: 1.0.6
     KUBE_MASTER_SERVICE_IP_CIDRS:
-        default:
-            - 10.1.1.0/24
+        default: 10.1.1.0/24
         description: kubernetes service cidrs
-        type: Array
         required: true
     KUBE_ALLOW_PRIVILEGED:
         default: true
@@ -107,7 +105,7 @@ variables:
         overrides:
           - CLUSTER_ELB_TRAFFIC_CIDRS
     KUBE_MASTER_TCP_HEALTH_CHECK_PORT:
-        default: 8080
+        default: 10251
         description: a tcp port the ELB will check every so often - this defines health and ASG termination
         type: number
         required: true
