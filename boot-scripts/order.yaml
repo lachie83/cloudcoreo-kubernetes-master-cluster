@@ -5,4 +5,6 @@
 ##   - run_chef.sh
 
 script-order:
+  - install_etcd_binaries.sh
+  - wait_for_etcd.sh
   - install_kube-master.sh
