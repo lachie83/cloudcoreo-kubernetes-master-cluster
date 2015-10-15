@@ -6,5 +6,6 @@
 
 script-order:
   - install_etcd_binaries.sh
+  - install_kubernetes_binaries.sh
   - wait_for_etcd.sh
-  - install_kube-master.sh
+  - run_kubernetes_master.sh
