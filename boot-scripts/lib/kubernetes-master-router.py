@@ -169,6 +169,7 @@ def replaceIfWrongAZ():
 
 def routeDestinationIsInCidrBlock(destination_cidr_block):
     log("routeDestinationIsInCidrBlock | checking cidr %s" % destination_cidr_block)
+    og("IPNetwork(%s) in IPNetwork(%s)" % (destination_cidr_block,options.masterCidrBlock))
     retBool = IPNetwork(destination_cidr_block) in IPNetwork(options.masterCidrBlock)
     log("routeDestinationIsInCidrBlock | returning %s" % retBool)
     return retBool
