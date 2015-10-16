@@ -5,6 +5,7 @@
 ##   - run_chef.sh
 
 script-order:
+  - setup_master_router.sh
   - install_etcd_binaries.sh
   - install_kubernetes_binaries.sh
   - wait_for_etcd.sh
