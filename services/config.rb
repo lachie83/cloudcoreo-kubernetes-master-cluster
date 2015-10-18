@@ -43,12 +43,7 @@ coreo_aws_iam_policy "${KUBE_MASTER_NAME}" do
       ],
       "Resource": [
         "*"
-      ],
-      "Condition": {
-        "ForAllValues:StringEquals": {
-          "ec2:ResourceTag/aws:autoscaling:groupName": "<autoscaling group name>"
-        }
-      }
+      ]
     },
     {
       "Effect": "Allow",
