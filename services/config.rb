@@ -58,3 +58,17 @@ coreo_aws_iam_policy "${KUBE_MASTER_NAME}" do
 EOH
 end
 
+coreo_aws_ec2_autoscaling "${KUBE_MASTER_NAME}" do
+  action :sustain 
+  minimum ${KUBE_MASTER_GROUP_SIZE_MIN}
+  maximum ${KUBE_MASTER_GROUP_SIZE_MAX}
+  server_definition "${KUBE_MASTER_NAME}"
+  subnet "${PRIVATE_SUBNET_NAME}"
+  elbs ["${KUBE_MASTER_NAME}-elb"]
+  health_check_grace_period ${KUBE_MASTER_HEALTH_CHECK_GRACE_PERIOD}
+  upgrade({
+            :replace => "in-place",
+            :upgrade_on => "dirty",
+            :cooldown => ${KUBE_MASTER_UPGRADE_COOLDOWN}
+        })
+end
