@@ -133,20 +133,6 @@ variables:
         required: true
         overrides:
           - CLUSTER_SIZE
-    KUBE_MASTER_GROUP_SIZE_MIN:
-        default: 1
-        description: the minimum number of instances to launch
-        type: number
-        required: true
-        overrides:
-          - CLUSTER_GROUP_SIZE_MIN
-    KUBE_MASTER_GROUP_SIZE_MAX:
-        default: 1
-        description: the maxmium number of instances to launch
-        type: number
-        required: true
-        overrides:
-          - CLUSTER_GROUP_SIZE_MAX
     KUBE_MASTER_HEALTH_CHECK_GRACE_PERIOD:
         default: 600
         description: the time in seconds to allow for instance to boot before checking health
