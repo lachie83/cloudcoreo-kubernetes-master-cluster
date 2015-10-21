@@ -12,6 +12,7 @@
 
 import boto
 import boto.ec2
+import boto.ec2.autoscale
 from boto.exception import EC2ResponseError
 import datetime
 import os
@@ -29,7 +30,7 @@ version = "0.0.1"
 MY_AZ = None
 MY_VPC_ID = None
 INSTANCE_ID = None
-MY_SUBNETS = None
+MY_ASG_SUBNETS = None
 MY_ROUTE_TABLES = None
 
 def parseArgs():
@@ -118,13 +119,19 @@ def getMyVPCId():
         MY_VPC_ID = getMe().vpc_id
     return MY_VPC_ID
   
-def getMySubnets():
-    ## cached
-    global MY_SUBNETS
-    if MY_SUBNETS == None:
-        az_subnet_filters = [['availability-zone', getAvailabilityZone()],['vpc-id', getMyVPCId()]]
-        MY_SUBNETS = VPC.get_all_subnets(filters=az_subnet_filters)
-    return MY_SUBNETS
+def getMyAsgName():
+    allTags = getMe().tags
+    for tag in allTags:
+        if 'aws:autoscaling:groupName' in tag:
+            return allTags[tag]
+
+def getMyASGSubnets():
+    global MY_ASG_SUBNETS
+    if MY_ASG_SUBNETS == None:
+        MY_ASG_SUBNETS = []
+        for subnetId in AUTOSCALE.get_all_groups([getMyAsgName()])[0].vpc_zone_identifier.split(","):
+            MY_ASG_SUBNETS.append(getSubnetById(subnetId))
+    return MY_ASG_SUBNETS
 
 def getMe():
     ## don't cache this as our instance attributes can change
@@ -133,7 +140,7 @@ def getMe():
 def replaceIfWrongAZ():
     log("replaceIfWrongAZ | checking getAvailabilityZone(): %s" % getAvailabilityZone())
     ## find subnet(s) in my AZ
-    for subnet in getMySubnets():
+    for subnet in getMyASGSubnets():
         log("replaceIfWrongAZ | checking subnet: %s" % subnet.id)
         ## find routes with instances
         for route_table in getMyRouteTables(subnet):
@@ -157,7 +164,6 @@ def replaceIfWrongAZ():
                         if not options.debug:
                             VPC.replace_route(route_table_id = route_table.id,
                                               destination_cidr_block = route.destination_cidr_block,
-                                              gateway_id = route.gateway_id,
                                               instance_id = getInstanceId())
                         else:
                             log('skipped VPC.replace_route due to debug flag')
@@ -173,6 +179,30 @@ def routeDestinationIsInCidrBlock(destination_cidr_block):
     retBool = IPNetwork(destination_cidr_block) in IPNetwork(options.masterCidrBlock)
     log("routeDestinationIsInCidrBlock | returning %s" % retBool)
     return retBool
+
+def addIfMissing():
+    log("addIfMissing()")
+    ## find subnet(s) in my AZ
+    for subnet in getMyASGSubnets():
+        log("addIfMissing | checking subnet: %s" % subnet.id)
+        ## find routes with instances
+        for route_table in getMyRouteTables(subnet):
+            log("addIfMissing | checking route table: %s" % route_table.id)
+            if route_table.id == None:
+                continue
+            cidrFound = False
+            for route in route_table.routes:
+                log("addIfMissing | checking route: %s | %s" % (route.destination_cidr_block, route.instance_id))
+                if route.destination_cidr_block == options.masterCidrBlock:
+                    log("cidr found")
+                    cidrFound = True
+            if cidrFound == False:
+                log("cidr not found")
+                if not options.debug:
+                    log('  creating route: %s | %s => %s' % (route_table.id, options.masterCidrBlock, getInstanceId()))
+                    VPC.create_route(route_table_id = route_table.id,
+                                      destination_cidr_block = options.masterCidrBlock,
+                                      instance_id = getInstanceId())
 
 def main():
     ## this should do the following
@@ -281,6 +311,7 @@ if options.version:
 print options
 EC2 = boto.ec2.connect_to_region(getRegion())
 VPC = boto.vpc.connect_to_region(getRegion())
+AUTOSCALE = boto.ec2.autoscale.connect_to_region(getRegion())
 
 ## these only need to run once
 log("disabling source/destination checks")
