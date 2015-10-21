@@ -142,7 +142,7 @@ def replaceIfWrongAZ():
                 continue
             for route in route_table.routes:
                 log("replaceIfWrongAZ | checking route: %s | %s" % (route.destination_cidr_block, route.instance_id))
-                if routeDestinationIsInCidrBlock(route.destination_cidr_block) == False:
+                if route.destination_cidr_block != options.masterCidrBlock:
                     continue
                 if route.instance_id == None:
                     continue
@@ -257,8 +257,8 @@ def main():
             continue
         for route in route_table.routes:
             log("main | checking route: %s | %s" % (route.destination_cidr_block, route.instance_id))
-            if routeDestinationIsInCidrBlock(route.destination_cidr_block) == False:
-                log("main | continuing because routeDestinationIsInCidrBlock(route.destination_cidr_block) == False")
+            if route.destination_cidr_block != options.masterCidrBlock:
+                log("main | continuing because route.destination_cidr_block != options.masterCidrBlock")
                 continue
             if not route.state == 'blackhole':
                 continue
@@ -272,8 +272,6 @@ def main():
                 log('skipped VPC.replace_route due to debug flag')
     replaceIfWrongAZ()                         
    
-print "here"
-print "here"
 (options, args) = parseArgs()
 
 if options.version:
