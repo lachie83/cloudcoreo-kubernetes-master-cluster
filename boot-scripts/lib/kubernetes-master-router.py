@@ -300,6 +300,7 @@ def main():
                                   instance_id = getInstanceId())
             else:
                 log('skipped VPC.replace_route due to debug flag')
+    addIfMissing()
     replaceIfWrongAZ()                         
    
 (options, args) = parseArgs()
