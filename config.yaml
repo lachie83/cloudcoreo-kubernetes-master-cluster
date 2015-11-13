@@ -38,6 +38,18 @@ variables:
         type: String
         required: true
         default: 10.1.0.0/16
+    VPC_SEARCH_TAGS:
+        description: if you have more than one VPC with the same CIDR, and it is not under CloudCoreo control, we need a way to find it. Enter some unique tags that exist on the VPC you want us to find. ['env=production','Name=prod-vpc']
+        type: Array
+        required: false
+    PRIVATE_ROUTE_SEARCH_TAGS:
+        description: if you more than one route table or set of route tables, and it is not under CloudCoreo control, we need a way to find it. Enter some unique tags that exist on your route tables you want us to find. i.e. ['Name=my-private-routetable','env=dev']
+        type: Array
+        required: false
+    PRIVATE_SUBNET_SEARCH_TAGS:
+        description: Usually the private-routetable association is enough for us to find the subnets you need, but if you have more than one subnet, we may need a way to find them. unique tags is a great way. enter them there. i.e. ['Name=my-private-subnet']
+        type: Array
+        required: false
     PRIVATE_SUBNET_NAME:
         default: kube-dev-private-us-west-1
         required: true
