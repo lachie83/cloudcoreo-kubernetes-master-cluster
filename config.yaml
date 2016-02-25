@@ -3,7 +3,7 @@ variables:
         description: kubernetes version
         type: String
         required: true
-        default: 1.0.6
+        default: 1.1.4
     KUBE_MASTER_SERVICE_IP_CIDRS:
         default: 10.1.1.0/24
         description: kubernetes service cidrs
