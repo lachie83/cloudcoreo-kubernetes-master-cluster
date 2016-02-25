@@ -33,7 +33,7 @@ nohup ./kube-apiserver \
     --etcd_servers=http://${ETCD_CLUSTER_NAME}.${DNS_ZONE}:2379  \
     --insecure-bind-address=0.0.0.0 \
     --service-cluster-ip-range=${KUBE_MASTER_SERVICE_IP_CIDRS} \
-    --allow-privileged=${KUBE_ALLOW_PRIVILEGED} \
+    --allow-privileged=true \
     --v=2 \
     2>&1 >> ${KUBE_API_LOG_FILE} &
 
