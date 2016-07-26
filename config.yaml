@@ -4,6 +4,11 @@ variables:
         type: String
         required: true
         default: 1.1.4
+    WAIT_FOR_ETCD:
+        description: should we wait for etcd or just continue?
+        type: String
+        required: false
+        default: true
     KUBE_MASTER_SERVICE_IP_CIDRS:
         default: 10.1.1.0/24
         description: kubernetes service cidrs
